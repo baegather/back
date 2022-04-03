@@ -1,10 +1,26 @@
+##아래는 디폴트 설정입니다.
+
+spring:
+  profiles:
+    active: dev #개발 설정은 dev, 운영 설정은 release
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
+
+
+##아래는 개발 설정입니다.
+---
 spring:
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
     password:
-      driver-class-name: org.h2.Driver
+    driver-class-name: org.h2.Driver
     generate-unique-name: false
+  config:
+    activate:
+      on-profile: dev
 
   jpa:
     hibernate:
@@ -13,7 +29,9 @@ spring:
       hibernate:
         format_sql: true
 
-logging:
-  level:
-    org.hibernate.SQL: debug
-    org.hibernate.type: trace
+  ##아래는 운영 설정입니다
+---
+spring:
+  config:
+    activate:
+      on-profile: release
