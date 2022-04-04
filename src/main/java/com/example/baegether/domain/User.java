@@ -12,11 +12,18 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+
+    public User(Long id, String email, String nickname, String thumbnail, TimeStamp timeStamp) {
+        this.id = id;
+        this.email = email;
+        this.nickname = nickname;
+        this.thumbnail = thumbnail;
+        this.timeStamp = timeStamp;
+    }
+
+    @Id @Column(name = "user_id")
     private Long id;
     private String email;
     private String nickname;

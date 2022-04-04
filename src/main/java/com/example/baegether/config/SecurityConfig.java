@@ -18,9 +18,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/","/oauth2/**", "/board/{boardId:[0-9]{1,}}").permitAll()
-                .anyRequest().authenticated()
+                .headers().frameOptions().sameOrigin()
+                .and()
+                    .authorizeRequests()
+                    .antMatchers("/","/oauth2/**", "/board/{boardId:[0-9]{1,}}"
+                            ,"/h2-console/**").permitAll()
+                    .anyRequest().authenticated()
                 .and()
                     .oauth2Login()
                     .defaultSuccessUrl("/")
