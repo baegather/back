@@ -1,7 +1,5 @@
 package com.example.baegether.service;
 
-import com.example.baegether.domain.TimeStamp;
-import com.example.baegether.domain.User;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -11,7 +9,6 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 
 
 @Component

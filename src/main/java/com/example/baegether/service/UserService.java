@@ -4,6 +4,7 @@ import com.example.baegether.domain.TimeStamp;
 import com.example.baegether.domain.User;
 import com.example.baegether.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,7 @@ public class UserService {
         return findUser.isPresent();
     }
 
+    //oAuth2User을 User로 파싱하고 저장함.
     public Long save(OAuth2User oAuth2User){
         User user = oAuth2UserToUser(oAuth2User);
         userRepository.save(user);
@@ -29,10 +31,24 @@ public class UserService {
         return user.getId();
     }
 
+    //User을 저장함.
     public Long save(User user){
         userRepository.save(user);
         return user.getId();
     }
+
+    //세션을 기반으로 oAuth2User객체를 불러와 User로 파싱 후 리턴하는 함수
+    public User getUserFromOAuth2(){
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        //로그인을 실패하면 principal은 "annoymous User"이 담기고, 값이 있으면 OAuth2User 객체가 담긴다.
+        if(principal.getClass().isAssignableFrom(String.class)){
+            return null;
+        }
+        OAuth2User oAuth2User = (OAuth2User) principal;
+        return this.oAuth2UserToUser(oAuth2User);
+    }
+
     private User oAuth2UserToUser(OAuth2User oAuth2User) {
         Map<String, Object> properties = (Map<String, Object>) oAuth2User.getAttributes().get("properties");
         Map<String, Object> kakaoAccountData = (Map<String, Object>) oAuth2User.getAttributes().get("kakao_account");
