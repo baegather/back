@@ -23,6 +23,9 @@ public class Room {
     private Post post;
 
     private Long userId;
-    private String nickname;
 
+    public void patch(Post post, Long userId) {
+        if (post != null) this.post = post;
+        if (userId != null) this.userId = userId;
+    }
 }
