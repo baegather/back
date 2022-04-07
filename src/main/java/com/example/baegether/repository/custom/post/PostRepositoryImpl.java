@@ -1,9 +1,8 @@
-package com.example.baegether.repository.custom;
+package com.example.baegether.repository.custom.post;
 
 import com.example.baegether.domain.Post;
 import com.example.baegether.domain.QPost;
 import com.example.baegether.domain.QRoom;
-import com.example.baegether.domain.Room;
 import com.example.baegether.domain.enums.Location;
 import com.example.baegether.domain.enums.MenuCategory;
 import com.example.baegether.service.search.PostSearch;
