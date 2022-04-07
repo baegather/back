@@ -17,10 +17,9 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Data
-public class PostCreateDto {
+public class PostDto {
 
-    private Long id;
-    private String title;
+    private Long id;    private String title;
     private String contents;
     private MenuCategory menuCategory;
     private int peopleMax;
@@ -32,8 +31,8 @@ public class PostCreateDto {
     private Long userId;
 
 
-    public static PostCreateDto of(Post post) {
-        return new PostCreateDto(
+    public static PostDto of(Post post) {
+        return new PostDto(
                 post.getId(),
                 post.getTitle(),
                 post.getContents(),

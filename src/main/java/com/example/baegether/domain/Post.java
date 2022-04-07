@@ -2,6 +2,7 @@ package com.example.baegether.domain;
 
 import com.example.baegether.domain.enums.Location;
 import com.example.baegether.domain.enums.MenuCategory;
+import com.example.baegether.dto.PostDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -44,4 +45,42 @@ public class Post {
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Comment> commentList = new ArrayList<>();
 
+    public static Post createPost(PostDto dto, User user) {
+
+        return new Post(
+                dto.getId(),
+                dto.getTitle(),
+                dto.getContents(),
+                dto.getMenuCategory(),
+                dto.getPeopleMax(),
+                dto.getLocation(),
+                dto.getHopeOrderTime(),
+                dto.getTimeStamp(),
+                user
+        );
+
+    }
+
+    public void joinRoom(Room room) {
+        this.room.add(room);
+    }
+
+    public Boolean isJoinRoom() {
+        if (room.size() >= peopleMax) {
+            return false;
+        }
+        return true;
+    }
+
+    public Post(Long id, String title, String contents, MenuCategory menuCategory, int peopleMax, Location location, LocalDateTime hopeOrderTime, TimeStamp timeStamp, User user) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.menuCategory = menuCategory;
+        this.peopleMax = peopleMax;
+        this.location = location;
+        this.hopeOrderTime = hopeOrderTime;
+        this.timeStamp = timeStamp;
+        this.user = user;
+    }
 }

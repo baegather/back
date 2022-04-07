@@ -3,6 +3,7 @@ package com.example.baegether.repository.custom;
 import com.example.baegether.domain.Post;
 import com.example.baegether.domain.QPost;
 import com.example.baegether.domain.QRoom;
+import com.example.baegether.domain.Room;
 import com.example.baegether.domain.enums.Location;
 import com.example.baegether.domain.enums.MenuCategory;
 import com.example.baegether.service.search.PostSearch;
@@ -19,6 +20,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
 
 
     private final JPAQueryFactory query;
+
 
     @Override
     public List<Post> findFiltered(PostSearch postSearch) {
