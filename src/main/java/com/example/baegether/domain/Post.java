@@ -32,7 +32,7 @@ public class Post {
     private Location location; //[오름관, 푸름관, 디지털관, 글로벌관, 테크노관, 학생회관, 아름관, 옥계중학교앞, 옥계BHC앞, 블랙홀상가앞]
     private LocalDateTime hopeOrderTime;
 
-    @Enumerated
+    @Embedded
     private TimeStamp timeStamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,6 +44,20 @@ public class Post {
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Comment> commentList = new ArrayList<>();
+
+    public void patch(PostDto dto) {
+        if (this.id != dto.getId())
+            throw new IllegalArgumentException("게시물 수정 실패! 잘못된 id 입력");
+
+        if(dto.getTitle() != null) this.title = dto.getTitle();
+        if(dto.getContents() != null) this.contents = dto.getContents();
+        if(dto.getLocation() != null) this.location = dto.getLocation();
+        if(dto.getHopeOrderTime() != null) this.hopeOrderTime = dto.getHopeOrderTime();
+        if(dto.getMenuCategory() != null) this.menuCategory = dto.getMenuCategory();
+        this.peopleMax = dto.getPeopleMax();
+        this.timeStamp.setCreatedTime(LocalDateTime.now());
+
+    }
 
     public static Post createPost(PostDto dto, User user) {
 

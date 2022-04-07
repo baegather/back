@@ -19,7 +19,8 @@ import java.time.LocalDateTime;
 @Data
 public class PostDto {
 
-    private Long id;    private String title;
+    private Long id;
+    private String title;
     private String contents;
     private MenuCategory menuCategory;
     private int peopleMax;

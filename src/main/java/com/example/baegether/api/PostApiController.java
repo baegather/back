@@ -22,7 +22,7 @@ public class PostApiController {
     /**
      * 게시물 작성
      * **/
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<PostDto> create(@RequestBody PostDto dto) {
         PostDto resultDto = postService.create(dto);
         return ResponseEntity.status(HttpStatus.OK).body(resultDto);
@@ -38,14 +38,51 @@ public class PostApiController {
     }
 
     /**
+     *  게시물 수정
+     */
+    @PutMapping("/{boardId}")
+    public ResponseEntity<PostDto> update(@PathVariable Long boardId,
+                                          @RequestBody PostDto dto) {
+        PostDto updated = postService.update(boardId, dto);
+
+        return (updated != null) ?
+                ResponseEntity.status(HttpStatus.OK).body(updated):
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+    /**
+     *  게시물 삭제
+     */
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<PostDto> delete(@PathVariable Long boardId,
+                                          @RequestBody PostDto dto) {
+        PostDto deleted = postService.delete(boardId, dto);
+
+        return (deleted != null) ?
+                ResponseEntity.status(HttpStatus.OK).body(deleted):
+                ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
      * 게시물 (방) 참여
      */
-    @PostMapping("/{board_id}/join")
-    public ResponseEntity<PostDto> joinRoom(@PathVariable Long board_id, @RequestBody UserDto userDto) {
-        PostDto postDto = postService.joinRoom(board_id, userDto.getId());
+    @PostMapping("/{boardId}/join")
+    public ResponseEntity<PostDto> joinRoom(@PathVariable Long boardId,
+                                            @RequestBody UserDto dto) {
+        PostDto postDto = postService.joinRoom(boardId, dto);
 
         return ResponseEntity.status(HttpStatus.OK).body(postDto);
     }
+    /**
+     * 게시물 (방) 나가기
+     */
+    @DeleteMapping("/{boardId}/exit")
+    public ResponseEntity<PostDto> exitRoom(@PathVariable Long boardId,
+                                             @RequestBody UserDto dto) {
+        PostDto postDto = postService.exitRoom(boardId, dto);
 
+        return (postDto != null) ?
+                ResponseEntity.status(HttpStatus.OK).body(postDto):
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 
 }
