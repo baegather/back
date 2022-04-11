@@ -27,5 +27,7 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
-
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
