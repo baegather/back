@@ -45,7 +45,7 @@ public class UserService {
     public User getUserFromOAuth2() throws NoSuchDataException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        //로그인을 실패하면 principal은 "annoymous User"이 담기고, 값이 있으면 OAuth2User 객체가 담긴다.
+        //유저찾기를 실패하면 principal은 "annoymous User"이 담기고, 값이 있으면 OAuth2User 객체가 담긴다.
         if(principal.getClass().isAssignableFrom(String.class)){
             throw new NoSuchDataException("유저 정보를 불러올 수 없습니다.");
         }
