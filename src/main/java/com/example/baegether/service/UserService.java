@@ -42,6 +42,8 @@ public class UserService {
     }
 
     //세션을 기반으로 oAuth2User객체를 불러와 User로 파싱 후 리턴하는 함수
+    //유저는 영속성 컨텍스트에서 가져와 userRepository에서 가져온 user 인스턴스와 equals 메서드 사용가능.
+
     public User getUserFromOAuth2() throws NoSuchDataException {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -49,8 +51,10 @@ public class UserService {
         if(principal.getClass().isAssignableFrom(String.class)){
             throw new NoSuchDataException("유저 정보를 불러올 수 없습니다.");
         }
+
         OAuth2User oAuth2User = (OAuth2User) principal;
-        return this.oAuth2UserToUser(oAuth2User);
+        return userRepository.findById((Long) oAuth2User.getAttributes().get("id"))
+                .orElseThrow(()->new NoSuchDataException("유저 정보를 불러올 수 없습니다."));
     }
 
     private User oAuth2UserToUser(OAuth2User oAuth2User) {

@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -18,6 +20,11 @@ public class Comment {
     private Long id;
 
     private String contents;
+
+    public void setContents(String contents) {
+        this.contents = contents;
+        this.timeStamp.setUpdatedTime(LocalDateTime.now());
+    }
 
     @Enumerated
     private TimeStamp timeStamp;
