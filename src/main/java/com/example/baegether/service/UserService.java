@@ -2,6 +2,7 @@ package com.example.baegether.service;
 
 import com.example.baegether.domain.TimeStamp;
 import com.example.baegether.domain.User;
+import com.example.baegether.exceptions.NoSuchDataException;
 import com.example.baegether.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,9 +42,9 @@ public class UserService {
     public User getUserFromOAuth2(){
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        //로그인을 실패하면 principal은 "annoymous User"이 담기고, 값이 있으면 OAuth2User 객체가 담긴다.
+        //유저찾기를 실패하면 principal은 "annoymous User"이 담기고, 값이 있으면 OAuth2User 객체가 담긴다.
         if(principal.getClass().isAssignableFrom(String.class)){
-            return null;
+            throw new NoSuchDataException("유저 정보를 불러올 수 없습니다.");
         }
         OAuth2User oAuth2User = (OAuth2User) principal;
         return this.oAuth2UserToUser(oAuth2User);
