@@ -37,4 +37,12 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     private User user;
+
+
+    public Comment(String contents, TimeStamp timeStamp, Post post, User user) {
+        this.contents = contents;
+        this.timeStamp = timeStamp;
+        this.post = post;
+        this.user = user;
+    }
 }

@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,36 +28,43 @@ public class CommentService {
 
     //댓글 저장
     public void save(CommentDto commentDto) throws NoSuchDataException {
+        //Board 정보 조회
         Post post = postRepository.findById(commentDto.getBoardId())
                 .orElseThrow(()->new NoSuchDataException("게시물을 찾을 수 없습니다."));
 
+        //User 정보 조회
         User user = userService.getUserFromOAuth2(); //throwable NoSuchDataException
-        Comment comment = new Comment(0L, commentDto.getContent(),
+
+        //Board와 User가 모두 조회되면 댓글이 저장됨.
+        Comment comment = new Comment(commentDto.getContent(),
                 new TimeStamp(LocalDateTime.now(), LocalDateTime.now()), post, user);
 
+        commentRepository.save(comment);
     }
 
     //게시물의 댓글들 조회
     @Transactional(readOnly = true)
     public List<CommentDto> findCommentsByBoardId(Long boardId) throws NoSuchDataException{
-        Post post;
-        try {
-            post = postRepository.getById(boardId);
-        }catch(EntityNotFoundException e){
-            throw new NoSuchDataException("게시물을 찾을 수 없습니다.");
-        }
+        //board 조회
+        Post post= postRepository.findById(boardId)
+                .orElseThrow(()-> new NoSuchDataException("게시물을 찾을 수 없습니다."));
 
+        //board의 comment 리스트 조회
         List<Comment> commentList = post.getCommentList();
         ArrayList<CommentDto> result = new ArrayList<>();
 
-        commentList.stream().forEach(x->result.add(new CommentDto(boardId, x.getContents(), x.getUser().getNickname())));
+        //comment들을 Response에 담기 위해 DTO로 변환
+        commentList.forEach(x->result.add(new CommentDto(boardId, x.getContents(), x.getUser().getNickname())));
         return result;
     }
 
     //댓글 삭제
     public void deleteComment(Long commentId)throws NoSuchDataException, UnauthorizedUserException{
 
+        //유저 정보 조회
         User user = userService.getUserFromOAuth2(); //throwable NoSuchDataException
+
+        //댓글 정보 조회
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 ()-> new NoSuchDataException("댓글을 찾을 수 없습니다."));
 
@@ -66,11 +72,16 @@ public class CommentService {
         if(!user.equals(comment.getUser())){
             throw new UnauthorizedUserException("작성자와 다른 유저입니다.");
         }
+
+        //유저가 존재하고, 요청한 유저가 댓글 작성자와 일치하고, 댓글이 존재한다면 로직 수행.
         commentRepository.delete(comment);
     }
 
     public void updateComment(Long commentId, CommentDto commentDto) throws NoSuchDataException, UnauthorizedUserException{
+        //유저 정보 조회
         User user = userService.getUserFromOAuth2(); //throwable NoSuchDataException
+
+        //댓글 정보 조회
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 ()-> new NoSuchDataException("댓글을 찾을 수 없습니다."));
 
@@ -78,6 +89,8 @@ public class CommentService {
         if(!user.equals(comment.getUser())){
             throw new UnauthorizedUserException("작성자와 다른 유저입니다.");
         }
+
+        //유저가 존재하고, 요청한 유저가 댓글 작성자와 일치하고, 댓글이 존재한다면 로직 수행.
         comment.setContents(comment.getContents());
     }
 }
