@@ -12,5 +12,7 @@ public class PostSearch {
     private String keyword;
     private MenuCategory menuCategory;
     private Location location;
+    private int page;
+    private int perPage;
 
 }
