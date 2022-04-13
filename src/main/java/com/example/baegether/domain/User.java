@@ -1,6 +1,7 @@
 package com.example.baegether.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,10 +24,13 @@ public class User {
         this.timeStamp = timeStamp;
     }
 
-    @Id @Column(name = "user_id")
+    @Id @Column(name = "user_id") @NotNull
     private Long id;
+    @NotNull
     private String email;
+    @NotNull
     private String nickname;
+    @NotNull
     private String thumbnail;
 
     @Enumerated

@@ -3,6 +3,7 @@ package com.example.baegether.domain;
 import com.example.baegether.domain.enums.Location;
 import com.example.baegether.domain.enums.MenuCategory;
 import com.example.baegether.dto.PostDto;
+import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,24 +19,26 @@ import java.util.List;
 @AllArgsConstructor
 public class Post {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue @NotNull
     @Column(name = "post_id")
     private Long id;
     private String title;
     private String contents;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @NotNull
     private MenuCategory menuCategory; //[한식, 분식, 중식, 일식, 양식, 카페, 야식]
     private int peopleMax;
-    @Enumerated(EnumType.STRING)
 
+    @Enumerated(EnumType.STRING) @NotNull
     private Location location; //[오름관, 푸름관, 디지털관, 글로벌관, 테크노관, 학생회관, 아름관, 옥계중학교앞, 옥계BHC앞, 블랙홀상가앞]
+
+    @NotNull
     private LocalDateTime hopeOrderTime;
 
     @Embedded
     private TimeStamp timeStamp;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY) @NotNull
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -55,7 +58,6 @@ public class Post {
         if(dto.getHopeOrderTime() != null) this.hopeOrderTime = dto.getHopeOrderTime();
         if(dto.getMenuCategory() != null) this.menuCategory = dto.getMenuCategory();
         this.peopleMax = dto.getPeopleMax();
-        this.timeStamp.setCreatedTime(LocalDateTime.now());
 
     }
 
