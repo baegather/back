@@ -5,6 +5,8 @@ import com.example.baegether.domain.Room;
 import com.example.baegether.domain.User;
 import com.example.baegether.dto.PostDto;
 import com.example.baegether.dto.UserDto;
+import com.example.baegether.exceptions.NoSuchDataException;
+import com.example.baegether.exceptions.UnauthorizedUserException;
 import com.example.baegether.repository.custom.post.PostRepository;
 import com.example.baegether.repository.UserRepository;
 import com.example.baegether.repository.custom.room.RoomRepository;
@@ -24,6 +26,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final UserService userService;
     /**
      * 조회
      * **/
@@ -41,11 +44,12 @@ public class PostService {
     @Transactional
     public PostDto create(PostDto dto) {
         // 게시물 작성자 확인
-        User user = userRepository.findById(dto.getUserId())
-                        .orElseThrow(() -> new IllegalArgumentException("게시물 작성 실패! 해당 유저가 없습니다."));
+        User user = userService.getUserFromOAuth2();
+        User findUser = userRepository.findById(user.getId())
+                        .orElseThrow(() -> new UnauthorizedUserException("게시물 작성 실패! 해당 유저가 없습니다."));
 
         // create post entity
-        Post post = Post.createPost(dto, user);
+        Post post = Post.createPost(dto, findUser);
 
         // create room entity and insert into post
         Room room = new Room();
@@ -59,65 +63,18 @@ public class PostService {
         return PostDto.of(created);
     }
 
-    @Transactional
-    public PostDto joinRoom(Long postId, UserDto userDto) {
-        // 게시물이 존재 체크
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물이 존재하지 않음"));
-
-        // user의 게시물 존재여부 확인 (존재하면 입장)
-        if (isUserInRoom(userDto.getId(), post)) {
-            return PostDto.of(post);
-        }
-
-        // 존재하지 않으면 joinRoom
-        // 게시물(방) 인원 체크
-        if (!post.isJoinRoom()) {
-            return null;
-        }
-
-        // create room and insert into post
-        Room room = new Room();
-        room.patch(post, userDto.getId());
-        post.joinRoom(room);
-
-        return PostDto.of(post);
-    }
-
-    private boolean isUserInRoom(Long userId, Post post) {
-        for(Room r : post.getRoom()) {
-            if (r.getUserId() == userId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Transactional
-    public PostDto delete(Long postId, PostDto dto) {
-        // 게시물 존재여부 확인
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지않는 게시물 입니다"));
-
-        // 게시물 작성한 유저 확인
-        if (post.getUser().getId() != dto.getId()) {
-            return null;
-        }
-
-        // 삭제
-        postRepository.delete(post);
-        return PostDto.of(post);
-
-    }
-
+    /**
+     * 게시물 수정
+     */
     @Transactional
     public PostDto update(Long postId,PostDto dto) {
         // 게시물 찾기
+        User user = userService.getUserFromOAuth2();
         Post target = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물이 존재하지 않음"));
+                .orElseThrow(() -> new NoSuchDataException("게시물이 존재하지 않음"));
 
         // 게시물 소유 확인
-        if(target.getUser().getId() != dto.getUserId()) {
+        if(target.getUser().getId() != user.getId()) {
             return null;
         }
 
@@ -127,27 +84,94 @@ public class PostService {
         return PostDto.of(target);
     }
 
+    /**
+     * 게시물 삭제
+     */
     @Transactional
-    public PostDto exitRoom(Long postId, UserDto userDto) {
+    public PostDto delete(Long postId) {
+        // 게시물 존재여부 확인
+        User user = userService.getUserFromOAuth2();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NoSuchDataException("존재하지않는 게시물 입니다"));
+
+        // 게시물 작성한 유저 확인
+        if (post.getUser().getId() != user.getId()) {
+            throw new UnauthorizedUserException("잘못된 유저");
+        }
+
+        // 삭제
+        postRepository.delete(post);
+        return PostDto.of(post);
+
+    }
+
+
+    /**
+     * 게시물 입장
+     * */
+    @Transactional
+    public PostDto joinRoom(Long postId) {
+        User user = userService.getUserFromOAuth2();
         // 게시물이 존재 체크
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("게시물이 존재하지 않음"));
+                .orElseThrow(() -> new NoSuchDataException("게시물이 존재하지 않음"));
+
+        // user의 게시물 존재여부 확인 (존재하면 입장)
+        if (isUserInRoom(user.getId(), post)) {
+            return PostDto.of(post);
+        }
+
+        // 게시물(방) 인원 체크
+        if (post.getRoom().size()>=post.getPeopleMax()) {
+            throw new NoSuchDataException("방 인원수 초과");
+        }
+
+        // create room
+        Room room = new Room();
+        room.patch(post, user.getId());
+        roomRepository.save(room);
+
+        return PostDto.of(post);
+    }
+
+
+    /**
+     * 게시물 나가기
+     * */
+    @Transactional
+    public PostDto exitRoom(Long postId) {
+        User user = userService.getUserFromOAuth2();
+        // 게시물이 존재 체크
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NoSuchDataException("게시물이 존재하지 않음"));
 
         // 게시물이 자신의 소유인 경우
-        if (post.getUser().getId() == userDto.getId()) {
-            return null;
+        if (post.getUser().getId() == user.getId()) {
+            throw new NoSuchDataException("방의 소유자는 나갈 수 없음");
         }
 
         // user의 게시물 존재여부 확인
-        if (!isUserInRoom(userDto.getId(), post)) {
-            return null;
+        if (!isUserInRoom(user.getId(), post)) {
+            throw new UnauthorizedUserException("게시물(방)에 존재하지 않음");
         }
 
-        Room room = roomRepository.findRoom(post.getId(), userDto.getId());
+        Room room = roomRepository.findRoom(post.getId(), user.getId());
 
         // 삭제
         roomRepository.delete(room);
 
         return PostDto.of(post);
+    }
+
+
+
+
+    private boolean isUserInRoom(Long userId, Post post) {
+        for(Room r : post.getRoom()) {
+            if (r.getUserId() == userId) {
+                return true;
+            }
+        }
+        return false;
     }
 }

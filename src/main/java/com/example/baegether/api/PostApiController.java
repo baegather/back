@@ -40,49 +40,48 @@ public class PostApiController {
     /**
      *  게시물 수정
      */
-    @PutMapping("/{boardId}")
+    @PatchMapping("/{boardId}")
     public ResponseEntity<PostDto> update(@PathVariable Long boardId,
                                           @RequestBody PostDto dto) {
         PostDto updated = postService.update(boardId, dto);
 
         return (updated != null) ?
-                ResponseEntity.status(HttpStatus.OK).body(updated):
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                ResponseEntity.status(HttpStatus.OK).body(updated) :
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
     /**
      *  게시물 삭제
      */
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<PostDto> delete(@PathVariable Long boardId,
-                                          @RequestBody PostDto dto) {
-        PostDto deleted = postService.delete(boardId, dto);
+    public ResponseEntity<PostDto> delete(@PathVariable Long boardId) {
+        PostDto deleted = postService.delete(boardId);
 
         return (deleted != null) ?
-                ResponseEntity.status(HttpStatus.OK).body(deleted):
-                ResponseEntity.status(HttpStatus.OK).build();
+                ResponseEntity.status(HttpStatus.OK).body(deleted) :
+                    ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
      * 게시물 (방) 참여
      */
     @PostMapping("/{boardId}/join")
-    public ResponseEntity<PostDto> joinRoom(@PathVariable Long boardId,
-                                            @RequestBody UserDto dto) {
-        PostDto postDto = postService.joinRoom(boardId, dto);
+    public ResponseEntity<PostDto> joinRoom(@PathVariable Long boardId) {
+        PostDto postDto = postService.joinRoom(boardId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(postDto);
+        return (postDto != null) ?
+                ResponseEntity.status(HttpStatus.OK).body(postDto) :
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
     /**
      * 게시물 (방) 나가기
      */
     @DeleteMapping("/{boardId}/exit")
-    public ResponseEntity<PostDto> exitRoom(@PathVariable Long boardId,
-                                             @RequestBody UserDto dto) {
-        PostDto postDto = postService.exitRoom(boardId, dto);
+    public ResponseEntity<PostDto> exitRoom(@PathVariable Long boardId) {
+        PostDto postDto = postService.exitRoom(boardId);
 
         return (postDto != null) ?
-                ResponseEntity.status(HttpStatus.OK).body(postDto):
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                ResponseEntity.status(HttpStatus.NO_CONTENT).body(postDto) :
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
 }
