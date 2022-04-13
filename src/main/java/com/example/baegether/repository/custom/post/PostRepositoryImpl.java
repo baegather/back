@@ -34,6 +34,8 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                         menuCategoryEq(postSearch.getMenuCategory()),
                         keywordEq(postSearch.getKeyword())
                 )
+                .offset(postSearch.getPerPage())
+                .limit(postSearch.getPerPage())
                 //.orderBy(post.timeStamp.createdTime.desc())
                 .fetch();
     }
