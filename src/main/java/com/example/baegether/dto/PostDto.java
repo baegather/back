@@ -5,6 +5,7 @@ import com.example.baegether.domain.Post;
 import com.example.baegether.domain.TimeStamp;
 import com.example.baegether.domain.enums.Location;
 import com.example.baegether.domain.enums.MenuCategory;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -25,7 +26,10 @@ public class PostDto {
     private MenuCategory menuCategory;
     private int peopleMax;
     private Location location;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime hopeOrderTime;
+
     private TimeStamp timeStamp;
 
     @JsonProperty("user_id")
